@@ -1,7 +1,9 @@
+#include <SoftwareSerial.h>
+#include <serLCD.h>
+
 #include <TimerOne.h>
 
 #include <EEPROM.h>
-#include <LiquidCrystal.h>
 #include <stdarg.h>
 #include <pgmspace.h>
 
@@ -80,7 +82,7 @@ enum _displayMode
 } DisplayMode = dispNormal;
 
 // Parallel display
-LiquidCrystal lcd(7, 6, 5, 4, 3, 2);
+serLCD lcd(2);
 
 // 3 rotations of pulse times for speed averaging
 unsigned long pulseTimes[3];
@@ -105,7 +107,8 @@ void setup()
   Serial.begin(9600);
 
   // Initialize the I/O pins and the LCD
-  lcd.begin(16,2);
+//  lcd.setType(3);
+
   lcd.clear();
   pinMode(ForwardPin,INPUT);
   pinMode(BackwardPin,INPUT);
@@ -113,10 +116,10 @@ void setup()
   pinMode(IRpin,INPUT);
     
   // Write the welcome message
-  lcd.setCursor(0,0); // Line 0,  Column 0
+  lcd.selectLine(1); 
   lcd.print(" Buggydometer! ");
-  lcd.setCursor(0,1); // Line 1,  Column 0
-  lcd.print("  Version 2.0  ");
+  lcd.selectLine(2); 
+  lcd.print("  Version 2.1  ");
  
 #if false 
   // Reset the odometer readings
@@ -232,13 +235,13 @@ void loop()
   {
     if ((millis() % 750) == 0)
     {
-      lcd.setCursor(0,0);
+      lcd.selectLine(1);
   
       // Format and print the lines
       dtostrf(mph,6,2,printfBuf);
       lcd.print(printfBuf);
       lcd.print(" mph      ");
-      lcd.setCursor(0,1);
+      lcd.selectLine(2);
       dtostrf(miles,6,2,printfBuf);
       lcd.print(printfBuf);  
       if (DisplayMode == dispNormal)
@@ -255,10 +258,10 @@ void loop()
   {
     if ((millis() % 100) == 0)
     {  
-      lcd.setCursor(0,0);
+      lcd.selectLine(1);
       strcpy_P(printfBuf,ResetTrip);
       lcd.print(printfBuf);
-      lcd.setCursor(0,1);
+      lcd.selectLine(2);
       strcpy_P(printfBuf,(DisplayMode == dispResetTripCancel) ? CancelSelected : OKSelected);
       lcd.print(printfBuf);
     }
